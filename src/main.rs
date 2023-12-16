@@ -1,6 +1,17 @@
+use std::env;
 use tiny_http::{Response, Server};
+
 fn main() {
-    let server = Server::http("0.0.0.0:8000").unwrap();
+    let args: Vec<String> = env::args().collect();
+    let port = match args.iter().position(|x| x == "--port") {
+        Some(i) => args[i + 1].clone(),
+        None => "8000".to_string(),
+    };
+
+    let addr = format!("localhost:{}", port);
+    println!("Listening on http://{}", addr);
+
+    let server = Server::http(addr).unwrap();
     for request in server.incoming_requests() {
         let ip = match request.remote_addr() {
             Some(ip) => ip,
