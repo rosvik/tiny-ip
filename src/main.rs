@@ -23,6 +23,7 @@ fn main() {
             }
         };
         let response = Response::from_string(ip.to_string());
+        println!("{} {}", ip, request.url());
         let _ = request.respond(response);
     }
 }
