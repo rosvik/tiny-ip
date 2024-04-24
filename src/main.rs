@@ -8,7 +8,7 @@ fn main() {
         None => "8000".to_string(),
     };
 
-    let addr = format!("localhost:{}", port);
+    let addr = format!("0.0.0.0:{}", port);
     println!("Listening on http://{}", addr);
 
     let server = Server::http(addr).unwrap();
