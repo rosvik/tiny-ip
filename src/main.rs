@@ -16,9 +16,10 @@ fn main() {
         let ip = match request.remote_addr() {
             Some(ip) => ip,
             None => {
-                let response = Response::from_string("".to_string());
-                let response = response.with_status_code(500);
-                let _ = request.respond(response);
+                let result = request.respond(Response::empty(500));
+                if let Err(e) = result {
+                    eprintln!("Error responding to request: {}", e);
+                }
                 continue;
             }
         };
