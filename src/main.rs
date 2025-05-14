@@ -5,7 +5,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let port = match args.iter().position(|x| x == "--port") {
         Some(i) => args[i + 1].clone(),
-        None => "8000".to_string(),
+        None => "2331".to_string(),
     };
 
     let addr = format!("0.0.0.0:{}", port);
