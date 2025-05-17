@@ -10,19 +10,19 @@ fn main() {
 
     let addr = format!("0.0.0.0:{}", port);
     println!("Listening on http://{}", addr);
-    let server = Server::http(addr).expect("Failed to start server");
+    let serv = Server::http(addr).expect("Failed to start server");
 
-    for request in server.incoming_requests() {
-        let response = get_ip(&request);
-        match request.respond(response) {
+    for req in serv.incoming_requests() {
+        let res = ip_res(&req);
+        match req.respond(res) {
             Ok(_) => {}
             Err(e) => eprintln!("Error responding to request: {}", e),
         };
     }
 }
 
-fn get_ip(request: &Request) -> ResponseBox {
-    match request.remote_addr() {
+fn ip_res(req: &Request) -> ResponseBox {
+    match req.remote_addr() {
         Some(ip) => Response::from_string(ip.to_string()).boxed(),
         None => Response::empty(400).boxed(),
     }
