@@ -1,5 +1,5 @@
 use std::env;
-use tiny_http::{Response, Server};
+use tiny_http::{Request, Response, ResponseBox, Server};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -10,21 +10,20 @@ fn main() {
 
     let addr = format!("0.0.0.0:{}", port);
     println!("Listening on http://{}", addr);
+    let server = Server::http(addr).expect("Failed to start server");
 
-    let server = Server::http(addr).unwrap();
     for request in server.incoming_requests() {
-        let ip = match request.remote_addr() {
-            Some(ip) => ip,
-            None => {
-                let result = request.respond(Response::empty(500));
-                if let Err(e) = result {
-                    eprintln!("Error responding to request: {}", e);
-                }
-                continue;
-            }
+        let response = get_ip(&request);
+        match request.respond(response) {
+            Ok(_) => {}
+            Err(e) => eprintln!("Error responding to request: {}", e),
         };
-        let response = Response::from_string(ip.to_string());
-        println!("{} {}", ip, request.url());
-        let _ = request.respond(response);
+    }
+}
+
+fn get_ip(request: &Request) -> ResponseBox {
+    match request.remote_addr() {
+        Some(ip) => Response::from_string(ip.to_string()).boxed(),
+        None => Response::empty(500).boxed(),
     }
 }
