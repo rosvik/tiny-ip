@@ -24,6 +24,6 @@ fn main() {
 fn get_ip(request: &Request) -> ResponseBox {
     match request.remote_addr() {
         Some(ip) => Response::from_string(ip.to_string()).boxed(),
-        None => Response::empty(500).boxed(),
+        None => Response::empty(400).boxed(),
     }
 }
