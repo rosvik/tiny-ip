@@ -22,6 +22,15 @@ fn main() {
 }
 
 fn ip_res(req: &Request) -> ResponseBox {
+    if let Some(xff) = req
+        .headers()
+        .iter()
+        .find(|h| h.field.equiv("X-Forwarded-For"))
+        .map(|h| h.value.as_str())
+    {
+        return Response::from_string(xff).boxed();
+    }
+
     match req.remote_addr() {
         Some(ip) => Response::from_string(ip.to_string()).boxed(),
         None => Response::empty(400).boxed(),
