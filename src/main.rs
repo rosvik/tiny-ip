@@ -13,22 +13,23 @@ fn main() {
     println!("Listening on {}", serv.server_addr());
 
     for req in serv.incoming_requests() {
-        let res = ip_res(&req);
-        match req.respond(res) {
-            Ok(_) => {}
-            Err(e) => eprintln!("Error responding to request: {}", e),
-        };
+        let response = ip_response(&req);
+        let result = req.respond(response);
+        if let Err(e) = result {
+            eprintln!("Error responding to request: {}", e);
+        }
     }
 }
 
-fn ip_res(req: &Request) -> ResponseBox {
-    if let Some(xff) = req
+fn ip_response(req: &Request) -> ResponseBox {
+    let x_forwarded_for = req
         .headers()
         .iter()
-        .find(|h| h.field.equiv("X-Forwarded-For"))
-        .map(|h| h.value.as_str())
-    {
-        return Response::from_string(xff).boxed();
+        .find(|header| header.field.equiv("X-Forwarded-For"))
+        .map(|header| header.value.as_str());
+
+    if let Some(x_forwarded_for) = x_forwarded_for {
+        return Response::from_string(x_forwarded_for).boxed();
     }
 
     match req.remote_addr() {
